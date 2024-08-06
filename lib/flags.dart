@@ -1,15 +1,6 @@
-import 'dart:typed_data';
+import 'registers.dart';
 
-mixin Flags {
-  /// Represents the 8-bit processor status register (P).
-  final ByteData _p = ByteData(1);
-
-  /// Gets the processor status register (P).
-  int get p => _p.getUint8(0);
-
-  /// Sets the processor status register (P).
-  set p(int value) => _p.setUint8(0, value);
-
+mixin Flags implements Registers {
   /// Gets the carry (C) processor status flag (bit 0).
   bool get c => p & 0x01 == 0x01;
 
