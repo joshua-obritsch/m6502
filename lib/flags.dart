@@ -1,4 +1,4 @@
-import 'registers.dart';
+part of 'cpu.dart';
 
 mixin Flags implements Registers {
   /// Gets the carry (C) processor status flag (bit 0).
@@ -42,4 +42,17 @@ mixin Flags implements Registers {
 
   /// Sets the negative (N) processor status flag (bit 7).
   set n(bool value) => p = p & 0x7F | (value ? 0x80 : 0x00);
+
+  /// Sets the carry (C) processor status flag (bit 0) arithmetically.
+  set _c(int value) => c = value > 0xFF;
+
+  /// Sets the zero (Z) processor status flag (bit 1) arithmetically.
+  set _z(int value) => z = value & 0xFF == 0;
+
+  /// Sets the overflow (V) processor status flag (bit 6) arithmetically.
+  set _v((int, int, int) value) =>
+      v = (value.$1 ^ value.$3) & (value.$2 ^ value.$3) & 0x80 == 0x80;
+
+  /// Sets the negative (N) processor status flag (bit 7) arithmetically.
+  set _n(int value) => n = value & 0x80 == 0x80;
 }

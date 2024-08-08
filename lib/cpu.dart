@@ -1,92 +1,141 @@
-import 'flags.dart';
-import 'memory.dart';
+import 'dart:typed_data';
+
 import 'op_codes.dart';
 import 'registers.dart';
 
-class Cpu with Registers, Flags {
-  /// Represents the 16-bit addressable memory.
-  final Memory memory;
+part 'flags.dart';
+part 'memory.dart';
 
-  Cpu({required this.memory});
-
-  /// Sets the carry (C) processor status flag (bit 0) arithmetically.
-  void _setCarryFlag(int value) => c = value > 0xFF;
-
-  /// Sets the zero (Z) processor status flag (bit 1) arithmetically.
-  void _setZeroFlag(int value) => z = value == 0;
-
-  /// Sets the overflow (V) processor status flag (bit 6) arithmetically.
-  void _setOverflowFlag(int a, int b, int c) =>
-      v = (a ^ c) & (b ^ c) & 0x80 == 0x80;
-
-  /// Sets the negative (N) processor status flag (bit 7) arithmetically.
-  void _setNegativeFlag(int value) => n = value & 0x80 == 0x80;
-
-  /// Clears all the registers.
-  void clear() {
-    ir = 0;
-    a = 0;
-    x = 0;
-    y = 0;
-    p = 0;
-    pc = 0;
-    s = 0;
-  }
+class Cpu with Registers, Flags, Memory {
+  Cpu();
 
   /// Gets the next operation code from memory.
-  void fetchOpCode() => ir = memory[pc++];
+  void fetch() => ir = memory[pc++];
 
-  /// Gets the address from memory via absolute addressing.
-  int _fetchAbsolute() => memory[pc++] | memory[pc++] << 8;
-
-  /// Gets the address from memory via absolute x addressing.
-  int _fetchAbsoluteX() => (memory[pc++] | memory[pc++] << 8) + x;
-
-  /// Gets the address from memory via absolute y addressing.
-  int _fetchAbsoluteY() => (memory[pc++] | memory[pc++] << 8) + y;
-
-  /// Gets the address from memory via indirect addressing.
-  int _fetchIndirect() =>
-      memory.getUint16(memory[memory[pc++] | memory[pc++] << 8]);
-
-  /// Gets the operand from memory via immediate addressing.
-  int _fetchImmediate() => memory[pc++];
-
-  /// Gets the address from memory via relative addressing.
-  int _fetchRelative() => memory.getUint16(pc + memory.getInt8(pc++));
-
-  /// Gets the address from memory via zero-page addressing.
-  int _fetchZeroPage() => memory[pc++];
-
-  /// Gets the address from memory via zero-page x addressing.
-  int _fetchZeroPageX() => (memory[pc++] + x) & 0xFF;
-
-  /// Gets the address from memory via zero-page y addressing.
-  int _fetchZeroPageY() => (memory[pc++] + y) & 0xFF;
-
-  /// Gets the address from memory via indirect x addressing.
-  int _fetchIndirectX() => memory.getUint16((memory[pc++] + x) & 0xFF);
-
-  /// Gets the address from memory via indirect y addressing.
-  int _fetchIndirectY() => (memory.getUint16(memory[pc++]) + y) & 0xFFFF;
-
-  int get _absoluteXPageBoundary => memory[pc] + x > 0xFF ? 1 : 0;
-
-  int get _absoluteYPageBoundary => memory[pc] + y > 0xFF ? 1 : 0;
-
-  int get _indirectYPageBoundary => memory[memory[pc]] + y > 0xFF ? 1 : 0;
-
-  int _branchPageBoundary(bool condition) {
-    if (condition) {
-      final address = pcl + memory.getInt8(pc) + 1;
-
-      if (address < 0x00 || address > 0xFF) {
-        return 2;
-      } else {
-        return 1;
-      }
-    } else {
-      return 0;
+  /// Executes the next instruction.
+  void execute() {
+    switch (ir) {
+      // ADC
+      case OpCode.adcImmediate:
+        _add(_immediate);
+      case OpCode.adcZeroPage:
+        _add(_zeroPage);
+      case OpCode.adcZeroPageX:
+        _add(_zeroPageX);
+      case OpCode.adcAbsolute:
+        _add(_absolute);
+      case OpCode.adcAbsoluteX:
+        _add(_absoluteX);
+      case OpCode.adcAbsoluteY:
+        _add(_absoluteY);
+      case OpCode.adcIndirectX:
+        _add(_indirectX);
+      case OpCode.adcIndirectY:
+        _add(_indirectY);
+      // AND
+      case OpCode.andImmediate:
+        _and(_immediate);
+      case OpCode.andZeroPage:
+        _and(_zeroPage);
+      case OpCode.andZeroPageX:
+        _and(_zeroPageX);
+      case OpCode.andAbsolute:
+        _and(_absolute);
+      case OpCode.andAbsoluteX:
+        _and(_absoluteX);
+      case OpCode.andAbsoluteY:
+        _and(_absoluteY);
+      case OpCode.andIndirectX:
+        _and(_indirectX);
+      case OpCode.andIndirectY:
+        _and(_indirectY);
+      // ASL
+      case OpCode.aslAccumulator:
+        _aslAccumulator();
+      case OpCode.aslZeroPage:
+        _asl(_zeroPage);
+      case OpCode.aslZeroPageX:
+        _asl(_zeroPageX);
+      case OpCode.aslAbsolute:
+        _asl(_absolute);
+      case OpCode.aslAbsoluteX:
+        _asl(_absoluteX);
+      // BCC
+      case OpCode.bccRelative:
+        _branch(!c);
+      // BCS
+      case OpCode.bcsRelative:
+        _branch(c);
+      // BEQ
+      case OpCode.beqRelative:
+        _branch(z);
+      // BIT
+      case OpCode.bitZeroPage:
+        _bit(_zeroPage);
+      case OpCode.bitAbsolute:
+        _bit(_absolute);
+      // BMI
+      case OpCode.bmiRelative:
+        _branch(n);
+      // BNE
+      case OpCode.bneRelative:
+        _branch(!z);
+      // BPL
+      case OpCode.bplRelative:
+        _branch(!n);
+      // BRK
+      case OpCode.brkImplied:
+        // TODO
+        return;
+      // BVC
+      case OpCode.bvcRelative:
+        _branch(!v);
+      // BVS
+      case OpCode.bvsRelative:
+        _branch(v);
+      // CLC
+      case OpCode.clcImplied:
+        c = false;
+      // CLD
+      case OpCode.cldImplied:
+        d = false;
+      // CLI
+      case OpCode.cliImplied:
+        i = false;
+      // CLV
+      case OpCode.clvImplied:
+        v = false;
+      // CMP
+      case OpCode.cmpImmediate:
+        _cmp(_immediate);
+      case OpCode.cmpZeroPage:
+        _cmp(_zeroPage);
+      case OpCode.cmpZeroPageX:
+        _cmp(_zeroPageX);
+      case OpCode.cmpAbsolute:
+        _cmp(_absolute);
+      case OpCode.cmpAbsoluteX:
+        _cmp(_absoluteX);
+      case OpCode.cmpAbsoluteY:
+        _cmp(_absoluteY);
+      case OpCode.cmpIndirectX:
+        _cmp(_indirectX);
+      case OpCode.cmpIndirectY:
+        _cmp(_indirectY);
+      // CPX
+      case OpCode.cpxImmediate:
+        _cpx(_immediate);
+      case OpCode.cpxZeroPage:
+        _cpx(_zeroPage);
+      case OpCode.cpxAbsolute:
+        _cpx(_zeroPageX);
+      // CPY
+      case OpCode.cpyImmediate:
+        _cpy(_immediate);
+      case OpCode.cpyZeroPage:
+        _cpy(_zeroPage);
+      case OpCode.cpyAbsolute:
+        _cpy(_zeroPageX);
     }
   }
 
@@ -117,26 +166,26 @@ class Cpu with Registers, Flags {
         OpCode.aslAbsolute => 6,
         OpCode.aslAbsoluteX => 7,
         // BCC
-        OpCode.bccRelative => 2 + _branchPageBoundary(c == false),
+        OpCode.bccRelative => 2 + _relativePageBoundary(!c),
         // BCS
-        OpCode.bcsRelative => 2 + _branchPageBoundary(c == true),
+        OpCode.bcsRelative => 2 + _relativePageBoundary(c),
         // BEQ
-        OpCode.beqRelative => 2 + _branchPageBoundary(z == true),
+        OpCode.beqRelative => 2 + _relativePageBoundary(z),
         // BIT
         OpCode.bitZeroPage => 3,
         OpCode.bitAbsolute => 4,
         // BMI
-        OpCode.bmiRelative => 2 + _branchPageBoundary(n == true),
+        OpCode.bmiRelative => 2 + _relativePageBoundary(n),
         // BNE
-        OpCode.bneRelative => 2 + _branchPageBoundary(z == false),
+        OpCode.bneRelative => 2 + _relativePageBoundary(!z),
         // BPL
-        OpCode.bplRelative => 2 + _branchPageBoundary(n == false),
+        OpCode.bplRelative => 2 + _relativePageBoundary(!n),
         // BRK
         OpCode.brkImplied => 7,
         // BVC
-        OpCode.bvcRelative => 2 + _branchPageBoundary(v == false),
+        OpCode.bvcRelative => 2 + _relativePageBoundary(!v),
         // BVS
-        OpCode.bvsRelative => 2 + _branchPageBoundary(v == true),
+        OpCode.bvsRelative => 2 + _relativePageBoundary(v),
         // CLC
         OpCode.clcImplied => 2,
         // CLD
@@ -302,137 +351,146 @@ class Cpu with Registers, Flags {
         _ => 0,
       };
 
-  void _add(int address) {
-    final initialValue = a;
-    final operand = memory[address];
-    final result = initialValue + operand;
+  /// Clears all the registers and memory.
+  void reset() {
+    ir = 0;
+    a = 0;
+    x = 0;
+    y = 0;
+    p = 0;
+    pc = 0;
+    s = 0;
+
+    for (var index = 0; index < memory.lengthInBytes; index++) {
+      memory[index] = 0;
+    }
+  }
+
+  void _add((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final augend = a;
+    final addend = memory[address];
+    final sum = augend + addend;
+
+    _c = sum;
+    _z = sum;
+    _v = (augend, addend, sum);
+    _n = sum;
+
+    a = sum;
+
+    pc += byteLength;
+  }
+
+  void _and((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final result = a & memory[address];
+
+    _z = result;
+    _n = result;
 
     a = result;
-    _setCarryFlag(result);
-    _setOverflowFlag(initialValue, operand, a);
+
+    pc += byteLength;
   }
 
-  void _shiftAccumulatorLeft() {
-    final value = a << 1;
+  void _asl((int, int) operands) {
+    final (address, byteLength) = operands;
 
-    a = value;
-    _setCarryFlag(value);
-  }
+    final result = memory[address] << 1;
 
-  void _shiftMemoryLeft(int address) {
-    final value = memory[address] << 1;
-    final result = value & 0xFF;
+    _c = result;
+    _z = result;
+    _n = result;
 
     memory[address] = result;
-    _setCarryFlag(value);
-    _setZeroFlag(result);
-    _setNegativeFlag(result);
+
+    pc += byteLength;
   }
 
-  void _bit(int address) {
+  void _aslAccumulator() {
+    final result = a << 1;
+
+    _c = result;
+    _z = result;
+    _n = result;
+
+    a = result;
+  }
+
+  void _bit((int, int) operands) {
+    final (address, byteLength) = operands;
+
     final operand = memory[address];
 
-    _setZeroFlag(a & operand);
+    _z = a & operand;
     v = operand & 0x40 == 0x40;
     n = operand & 0x80 == 0x80;
+
+    pc += byteLength;
   }
 
-  void _branch(bool condition, int address) =>
-      pc = condition ? memory[address] : pc + 1;
+  void _branch(bool condition) {
+    final (address, byteLength) = _relative;
 
-  /// Executes the next instruction.
-  void execute() {
-    switch (ir) {
-      // ADC
-      case OpCode.adcImmediate:
-        _add(_fetchImmediate());
-      case OpCode.adcZeroPage:
-        _add(_fetchZeroPage());
-      case OpCode.adcZeroPageX:
-        _add(_fetchZeroPageX());
-      case OpCode.adcAbsolute:
-        _add(_fetchAbsolute());
-      case OpCode.adcAbsoluteX:
-        _add(_fetchAbsoluteX());
-      case OpCode.adcAbsoluteY:
-        _add(_fetchAbsoluteY());
-      case OpCode.adcIndirectX:
-        _add(_fetchIndirectX());
-      case OpCode.adcIndirectY:
-        _add(_fetchIndirectY());
-      // AND
-      case OpCode.andImmediate:
-        a = a & _fetchImmediate();
-      case OpCode.andZeroPage:
-        a = a & memory[_fetchZeroPage()];
-      case OpCode.andZeroPageX:
-        a = a & memory[_fetchZeroPageX()];
-      case OpCode.andAbsolute:
-        a = a & memory[_fetchAbsolute()];
-      case OpCode.andAbsoluteX:
-        a = a & memory[_fetchAbsoluteX()];
-      case OpCode.andAbsoluteY:
-        a = a & memory[_fetchAbsoluteY()];
-      case OpCode.andIndirectX:
-        a = a & memory[_fetchIndirectX()];
-      case OpCode.andIndirectY:
-        a = a & memory[_fetchIndirectY()];
-      // ASL
-      case OpCode.aslAccumulator:
-        _shiftAccumulatorLeft();
-      case OpCode.aslZeroPage:
-        _shiftMemoryLeft(_fetchZeroPage());
-      case OpCode.aslZeroPageX:
-        _shiftMemoryLeft(_fetchZeroPageX());
-      case OpCode.aslAbsolute:
-        _shiftMemoryLeft(_fetchAbsolute());
-      case OpCode.aslAbsoluteX:
-        _shiftMemoryLeft(_fetchAbsoluteX());
-      // BCC
-      case OpCode.bccRelative:
-        _branch(c == false, _fetchRelative());
-      // BCS
-      case OpCode.bcsRelative:
-        _branch(c == true, _fetchRelative());
-      // BEQ
-      case OpCode.beqRelative:
-        _branch(z == true, _fetchRelative());
-      // BIT
-      case OpCode.bitZeroPage:
-        _bit(_fetchZeroPage());
-      case OpCode.bitAbsolute:
-        _bit(_fetchAbsolute());
-      // BMI
-      case OpCode.bmiRelative:
-        _branch(n == true, _fetchRelative());
-      // BNE
-      case OpCode.bneRelative:
-        _branch(z == false, _fetchRelative());
-      // BPL
-      case OpCode.bplRelative:
-        _branch(n == false, _fetchRelative());
-      // BRK
-      case OpCode.brkImplied:
-        // TODO
-        return;
-      // BVC
-      case OpCode.bvcRelative:
-        _branch(v == false, _fetchRelative());
-      // BVS
-      case OpCode.bvsRelative:
-        _branch(v == true, _fetchRelative());
-      // CLC
-      case OpCode.clcImplied:
-        c = false;
-      // CLD
-      case OpCode.cldImplied:
-        d = false;
-      // CLI
-      case OpCode.cliImplied:
-        i = false;
-      // CLV
-      case OpCode.clvImplied:
-        v = false;
-    }
+    pc = (condition ? memory[address] + pc : pc) + byteLength;
+  }
+
+  void _cmp((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final minuend = a;
+    final subtrahend = memory[address];
+    final difference = minuend - subtrahend;
+
+    _c = difference;
+    _z = difference;
+    _n = difference;
+
+    pc += byteLength;
+  }
+
+  void _cpx((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final minuend = x;
+    final subtrahend = memory[address];
+    final difference = minuend - subtrahend;
+
+    _c = difference;
+    _z = difference;
+    _n = difference;
+
+    pc += byteLength;
+  }
+
+  void _cpy((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final minuend = y;
+    final subtrahend = memory[address];
+    final difference = minuend - subtrahend;
+
+    _c = difference;
+    _z = difference;
+    _n = difference;
+
+    pc += byteLength;
+  }
+
+  void _dec((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final difference = memory[address] - 1;
+
+    _c = difference;
+    _z = difference;
+    _n = difference;
+
+    memory[address] = difference;
+
+    pc += byteLength;
   }
 }

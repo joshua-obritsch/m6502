@@ -1,4 +1,4 @@
-name: app
+name: m6502
 description: A 6502 virtual machine.
 version: 0.1.0
 
