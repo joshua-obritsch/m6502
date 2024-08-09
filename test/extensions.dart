@@ -10,6 +10,7 @@ extension CpuExt on Cpu {
     int? p,
     int? pc,
     int? s,
+    int? cycles,
     List<(int, int)> memory = const [],
   }) {
     test.expect(
@@ -48,6 +49,14 @@ extension CpuExt on Cpu {
       reason: _mismatch('Stack pointer register (S)', s ?? 0, this.s),
     );
 
+    if (cycles != null) {
+      test.expect(
+        tcu,
+        cycles,
+        reason: 'Cycle mismatch: $cycles != $tcu.\n\n${_registerState()}',
+      );
+    }
+
     for (final pair in memory) {
       final (address, value) = pair;
 
@@ -55,7 +64,7 @@ extension CpuExt on Cpu {
         this.memory[address],
         value,
         reason: 'Memory (0x${address.toHex(4)}) mismatch: '
-            '0x${value.toHex()} != 0x${this.memory[address].toHex()}'
+            '0x${value.toHex()} != 0x${this.memory[address].toHex()}.'
             '\n\n${_registerState()}',
       );
     }
