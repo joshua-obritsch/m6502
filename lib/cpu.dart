@@ -4,9 +4,10 @@ import 'op_codes.dart';
 import 'registers.dart';
 
 part 'flags.dart';
+part 'instructions.dart';
 part 'memory.dart';
 
-class Cpu with Registers, Flags, Memory {
+class Cpu with Flags, Instructions, Memory, Registers {
   Cpu();
 
   /// Gets the next operation code from memory.
@@ -17,21 +18,21 @@ class Cpu with Registers, Flags, Memory {
     switch (ir) {
       // ADC
       case OpCode.adcImmediate:
-        _add(_immediate);
+        _adc(_immediate);
       case OpCode.adcZeroPage:
-        _add(_zeroPage);
+        _adc(_zeroPage);
       case OpCode.adcZeroPageX:
-        _add(_zeroPageX);
+        _adc(_zeroPageX);
       case OpCode.adcAbsolute:
-        _add(_absolute);
+        _adc(_absolute);
       case OpCode.adcAbsoluteX:
-        _add(_absoluteX);
+        _adc(_absoluteX);
       case OpCode.adcAbsoluteY:
-        _add(_absoluteY);
+        _adc(_absoluteY);
       case OpCode.adcIndirectX:
-        _add(_indirectX);
+        _adc(_indirectX);
       case OpCode.adcIndirectY:
-        _add(_indirectY);
+        _adc(_indirectY);
       // AND
       case OpCode.andImmediate:
         _and(_immediate);
@@ -351,146 +352,21 @@ class Cpu with Registers, Flags, Memory {
         _ => 0,
       };
 
-  /// Clears all the registers and memory.
+  /// Clears all the registers and gets the reset vector.
   void reset() {
     ir = 0;
     a = 0;
     x = 0;
     y = 0;
     p = 0;
-    pc = 0;
+    pc = memory.getUint16(0xFFFC, Endian.little);
     s = 0;
+  }
 
-    for (var index = 0; index < memory.lengthInBytes; index++) {
-      memory[index] = 0;
+  /// Clears a region of memory.
+  void clear([int? start, int? end]) {
+    for (var i = start ?? 0; i < (end ?? memory.lengthInBytes); i++) {
+      memory.setUint8(i, 0);
     }
-  }
-
-  void _add((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final augend = a;
-    final addend = memory[address];
-    final sum = augend + addend;
-
-    _c = sum;
-    _z = sum;
-    _v = (augend, addend, sum);
-    _n = sum;
-
-    a = sum;
-
-    pc += byteLength;
-  }
-
-  void _and((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final result = a & memory[address];
-
-    _z = result;
-    _n = result;
-
-    a = result;
-
-    pc += byteLength;
-  }
-
-  void _asl((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final result = memory[address] << 1;
-
-    _c = result;
-    _z = result;
-    _n = result;
-
-    memory[address] = result;
-
-    pc += byteLength;
-  }
-
-  void _aslAccumulator() {
-    final result = a << 1;
-
-    _c = result;
-    _z = result;
-    _n = result;
-
-    a = result;
-  }
-
-  void _bit((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final operand = memory[address];
-
-    _z = a & operand;
-    v = operand & 0x40 == 0x40;
-    n = operand & 0x80 == 0x80;
-
-    pc += byteLength;
-  }
-
-  void _branch(bool condition) {
-    final (address, byteLength) = _relative;
-
-    pc = (condition ? memory[address] + pc : pc) + byteLength;
-  }
-
-  void _cmp((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final minuend = a;
-    final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
-
-    _c = difference;
-    _z = difference;
-    _n = difference;
-
-    pc += byteLength;
-  }
-
-  void _cpx((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final minuend = x;
-    final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
-
-    _c = difference;
-    _z = difference;
-    _n = difference;
-
-    pc += byteLength;
-  }
-
-  void _cpy((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final minuend = y;
-    final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
-
-    _c = difference;
-    _z = difference;
-    _n = difference;
-
-    pc += byteLength;
-  }
-
-  void _dec((int, int) operands) {
-    final (address, byteLength) = operands;
-
-    final difference = memory[address] - 1;
-
-    _c = difference;
-    _z = difference;
-    _n = difference;
-
-    memory[address] = difference;
-
-    pc += byteLength;
   }
 }

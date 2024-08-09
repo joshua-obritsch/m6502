@@ -52,6 +52,7 @@ mixin Memory implements Registers {
   int get _indirectYPageBoundary =>
       memory.getUint8(memory.getUint8(pc)) + y >>> 8;
 
+  /// Gets the cycle count for page boundary crossing via relative addressing.
   int _relativePageBoundary(bool condition) =>
       condition ? (pch == memory.getInt8(pc) + pc + 1 >>> 8 ? 1 : 2) : 0;
 }
