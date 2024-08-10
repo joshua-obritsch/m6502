@@ -14,7 +14,7 @@ mixin Registers {
   final ByteData _y = ByteData(1);
 
   /// Represents the 8-bit processor status register (P).
-  final ByteData _p = ByteData(1);
+  final ByteData _p = ByteData(1)..setUint8(0, 0x20);
 
   /// Represents the 16-bit program counter register (PC).
   final ByteData _pc = ByteData(2);

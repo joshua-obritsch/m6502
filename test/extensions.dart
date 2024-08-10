@@ -40,8 +40,8 @@ extension CpuExt on Cpu {
     );
     test.expect(
       this.p,
-      p ?? 0,
-      reason: _mismatch('Processor status register (P)', p ?? 0, this.p),
+      p ?? 0x20,
+      reason: _mismatch('Processor status register (P)', p ?? 0x20, this.p),
     );
     test.expect(
       this.pc,

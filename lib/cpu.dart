@@ -9,7 +9,9 @@ part 'memory.dart';
 part 'timing.dart';
 
 class Cpu with Flags, Instructions, Memory, Registers, Timing {
-  Cpu();
+  Cpu() {
+    p = 0x20;
+  }
 
   /// Gets the next operation code from memory and calculates the cycle count.
   void fetch() {
@@ -144,14 +146,14 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
     }
   }
 
-  /// Clears all the registers and gets the reset vector.
+  /// Resets all the registers and gets the reset vector.
   void reset() {
     ir = 0;
     tcu = 0;
     a = 0;
     x = 0;
     y = 0;
-    p = 0;
+    p = 0x20;
     pc = memory.getUint16(0xFFFC, Endian.little);
     s = 0;
   }

@@ -24,7 +24,7 @@ void main() {
       ir: OpCode.adcImmediate,
       tcu: 2,
       a: 137,
-      p: 0xC0,
+      p: 0xE0,
       pc: 0x8002,
     );
   });
@@ -43,7 +43,7 @@ void main() {
       ir: OpCode.adcZeroPage,
       tcu: 3,
       a: 233,
-      p: 0x80,
+      p: 0xA0,
       pc: 0x8002,
     );
   });
@@ -64,7 +64,7 @@ void main() {
       tcu: 4,
       a: 179,
       x: 0x46,
-      p: 0x80,
+      p: 0xA0,
       pc: 0x8002,
     );
   });
@@ -85,7 +85,7 @@ void main() {
       tcu: 4,
       a: 114,
       x: 0x96,
-      p: 0x00,
+      p: 0x20,
       pc: 0x8002,
     );
   });
@@ -105,7 +105,7 @@ void main() {
       ir: OpCode.adcAbsolute,
       tcu: 4,
       a: 133,
-      p: 0xC0,
+      p: 0xE0,
       pc: 0x8003,
     );
   });
@@ -127,7 +127,7 @@ void main() {
       tcu: 4,
       a: 246,
       x: 0x74,
-      p: 0x80,
+      p: 0xA0,
       pc: 0x8003,
     );
   });
@@ -149,7 +149,7 @@ void main() {
       tcu: 5,
       a: 54,
       x: 0xAB,
-      p: 0x41,
+      p: 0x61,
       pc: 0x8003,
     );
   });
@@ -171,7 +171,7 @@ void main() {
       tcu: 4,
       a: 14,
       y: 0x07,
-      p: 0x41,
+      p: 0x61,
       pc: 0x8003,
     );
   });
@@ -193,7 +193,7 @@ void main() {
       tcu: 5,
       a: 186,
       y: 0xF0,
-      p: 0x80,
+      p: 0xA0,
       pc: 0x8003,
     );
   });
@@ -216,7 +216,7 @@ void main() {
       tcu: 6,
       a: 42,
       x: 0x6B,
-      p: 0x01,
+      p: 0x21,
       pc: 0x8002,
     );
   });
@@ -239,7 +239,7 @@ void main() {
       tcu: 6,
       a: 196,
       x: 0xCA,
-      p: 0x80,
+      p: 0xA0,
       pc: 0x8002,
     );
   });
@@ -262,7 +262,7 @@ void main() {
       tcu: 5,
       a: 155,
       y: 0xC7,
-      p: 0xC0,
+      p: 0xE0,
       pc: 0x8002,
     );
   });
@@ -285,7 +285,7 @@ void main() {
       tcu: 6,
       a: 224,
       y: 0x8A,
-      p: 0xC0,
+      p: 0xE0,
       pc: 0x8002,
     );
   });
