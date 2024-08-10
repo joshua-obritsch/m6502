@@ -7,7 +7,7 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final augend = a;
     final addend = memory[address];
-    final sum = augend + addend;
+    final sum = augend + addend + (c ? 1 : 0);
 
     _c = sum;
     _z = sum;
@@ -98,10 +98,10 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = a;
     final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
+    final difference = (minuend - subtrahend).toUnsigned(8);
 
-    _c = difference;
-    _z = difference;
+    c = minuend >= subtrahend;
+    z = minuend == subtrahend;
     _n = difference;
 
     pc += byteLength;
@@ -113,10 +113,10 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = x;
     final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
+    final difference = (minuend - subtrahend).toUnsigned(8);
 
-    _c = difference;
-    _z = difference;
+    c = minuend >= subtrahend;
+    z = minuend == subtrahend;
     _n = difference;
 
     pc += byteLength;
@@ -128,10 +128,10 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = y;
     final subtrahend = memory[address];
-    final difference = minuend - subtrahend;
+    final difference = (minuend - subtrahend).toUnsigned(8);
 
-    _c = difference;
-    _z = difference;
+    c = minuend >= subtrahend;
+    z = minuend == subtrahend;
     _n = difference;
 
     pc += byteLength;

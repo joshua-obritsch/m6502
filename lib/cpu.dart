@@ -134,14 +134,14 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
       case OpCode.cpxZeroPage:
         _cpx(_zeroPage);
       case OpCode.cpxAbsolute:
-        _cpx(_zeroPageX);
+        _cpx(_absolute);
       // CPY
       case OpCode.cpyImmediate:
         _cpy(_immediate);
       case OpCode.cpyZeroPage:
         _cpy(_zeroPage);
       case OpCode.cpyAbsolute:
-        _cpy(_zeroPageX);
+        _cpy(_absolute);
     }
   }
 
