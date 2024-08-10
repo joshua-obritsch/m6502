@@ -79,6 +79,19 @@ mixin Instructions implements Registers, Flags, Memory {
     pc = (condition ? address : pc) + byteLength;
   }
 
+  /// Executes the BRK instruction.
+  void _brk() {
+    pc++;
+    b = true;
+    memory[0x0100 + s] = pch;
+    s--;
+    memory[0x0100 + s] = pcl;
+    s--;
+    memory[0x0100 + s] = p;
+    s--;
+    pc = memory.getUint16(0xFFFC, Endian.little);
+  }
+
   /// Executes the CMP instruction.
   void _cmp((int, int) operands) {
     final (address, byteLength) = operands;

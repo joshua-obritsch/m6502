@@ -92,8 +92,7 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         _branch(!n);
       // BRK
       case OpCode.brkImplied:
-        // TODO
-        return;
+        _brk();
       // BVC
       case OpCode.bvcRelative:
         _branch(!v);
