@@ -4,19 +4,24 @@ import 'package:test/test.dart' as test;
 extension CpuExt on Cpu {
   void expect({
     int? ir,
+    int? tcu,
     int? a,
     int? x,
     int? y,
     int? p,
     int? pc,
     int? s,
-    int? cycles,
     List<(int, int)> memory = const [],
   }) {
     test.expect(
       this.ir,
       ir ?? 0,
       reason: _mismatch('Instruction register (IR)', ir ?? 0, this.ir),
+    );
+    test.expect(
+      this.tcu,
+      tcu ?? 0,
+      reason: _mismatch('Timing control unit (TCU)', tcu ?? 0, this.tcu),
     );
     test.expect(
       this.a,
@@ -49,23 +54,16 @@ extension CpuExt on Cpu {
       reason: _mismatch('Stack pointer register (S)', s ?? 0, this.s),
     );
 
-    if (cycles != null) {
-      test.expect(
-        tcu,
-        cycles,
-        reason: 'Cycle mismatch: $cycles != $tcu.\n\n${_registerState()}',
-      );
-    }
-
     for (final pair in memory) {
       final (address, value) = pair;
 
       test.expect(
         this.memory[address],
         value,
-        reason: 'Memory (0x${address.toHex(4)}) mismatch: '
+        reason: //
+            'Memory (0x${address.toHex(4)}) mismatch: '
             '0x${value.toHex()} != 0x${this.memory[address].toHex()}.'
-            '\n\n${_registerState()}',
+            '\n\n${_state()}',
       );
     }
   }
@@ -75,7 +73,9 @@ extension CpuExt on Cpu {
     clear(0x0000, 0xFFFA);
   }
 
-  String _registerState() => 'Instruction Register     (IR):   ${ir.toHex()}\n'
+  String _state() => //
+      'Instruction Register     (IR):   ${ir.toHex()}\n'
+      'Timing Control Unit     (TCU):   ${tcu.toHex()}\n'
       'Accumulator Register      (A):   ${a.toHex()}\n'
       'Index Register X          (X):   ${x.toHex()}\n'
       'Index Register Y          (Y):   ${y.toHex()}\n'
@@ -85,7 +85,7 @@ extension CpuExt on Cpu {
 
   String _mismatch(String title, int expected, int actual, [int width = 2]) =>
       '\n$title mismatch: 0x${expected.toHex(width)} != 0x${actual.toHex(width)}.'
-      '\n\n${_registerState()}';
+      '\n\n${_state()}';
 }
 
 extension on int {
