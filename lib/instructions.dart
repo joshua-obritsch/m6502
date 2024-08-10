@@ -76,7 +76,7 @@ mixin Instructions implements Registers, Flags, Memory {
   void _branch(bool condition) {
     final (address, byteLength) = _relative;
 
-    pc = (condition ? memory[address] + pc : pc) + byteLength;
+    pc = (condition ? address : pc) + byteLength;
   }
 
   /// Executes the CMP instruction.

@@ -31,7 +31,7 @@ mixin Memory implements Registers {
       ((memory.getUint16(memory.getUint8(pc), Endian.little) + y) & 0xFFFF, 1);
 
   /// Gets the operands from memory via relative addressing.
-  (int, int) get _relative => ((memory.getInt8(pc) + pc + 1) & 0xFFFF, 1);
+  (int, int) get _relative => (memory.getInt8(pc) + pc, 1);
 
   /// Gets the operands from memory via zero-page addressing.
   (int, int) get _zeroPage => (memory.getUint8(pc), 1);
