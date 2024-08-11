@@ -98,7 +98,7 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = a;
     final subtrahend = memory[address];
-    final difference = (minuend - subtrahend).toUnsigned(8);
+    final difference = minuend - subtrahend;
 
     c = minuend >= subtrahend;
     z = minuend == subtrahend;
@@ -113,7 +113,7 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = x;
     final subtrahend = memory[address];
-    final difference = (minuend - subtrahend).toUnsigned(8);
+    final difference = minuend - subtrahend;
 
     c = minuend >= subtrahend;
     z = minuend == subtrahend;
@@ -128,7 +128,7 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final minuend = y;
     final subtrahend = memory[address];
-    final difference = (minuend - subtrahend).toUnsigned(8);
+    final difference = minuend - subtrahend;
 
     c = minuend >= subtrahend;
     z = minuend == subtrahend;
@@ -143,11 +143,40 @@ mixin Instructions implements Registers, Flags, Memory {
 
     final difference = memory[address] - 1;
 
-    _c = difference;
     _z = difference;
     _n = difference;
 
     memory[address] = difference;
+
+    pc += byteLength;
+  }
+
+  /// Executes the DEX instruction.
+  void _dex() {
+    x--;
+
+    _z = x;
+    _n = x;
+  }
+
+  /// Executes the DEY instruction.
+  void _dey() {
+    y--;
+
+    _z = y;
+    _n = y;
+  }
+
+  /// Executes the EOR instruction.
+  void _eor((int, int) operands) {
+    final (address, byteLength) = operands;
+
+    final result = a ^ memory[address];
+
+    _z = result;
+    _n = result;
+
+    a = result;
 
     pc += byteLength;
   }

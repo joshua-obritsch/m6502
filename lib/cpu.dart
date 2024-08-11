@@ -142,6 +142,38 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         _cpy(_zeroPage);
       case OpCode.cpyAbsolute:
         _cpy(_absolute);
+      // DEC
+      case OpCode.decZeroPage:
+        _dec(_zeroPage);
+      case OpCode.decZeroPageX:
+        _dec(_zeroPageX);
+      case OpCode.decAbsolute:
+        _dec(_absolute);
+      case OpCode.decAbsoluteX:
+        _dec(_absoluteX);
+      // DEX
+      case OpCode.dexImplied:
+        _dex();
+      // DEY
+      case OpCode.deyImplied:
+        _dey();
+      // EOR
+      case OpCode.eorImmediate:
+        _eor(_immediate);
+      case OpCode.eorZeroPage:
+        _eor(_zeroPage);
+      case OpCode.eorZeroPageX:
+        _eor(_zeroPageX);
+      case OpCode.eorAbsolute:
+        _eor(_absolute);
+      case OpCode.eorAbsoluteX:
+        _eor(_absoluteX);
+      case OpCode.eorAbsoluteY:
+        _eor(_absoluteY);
+      case OpCode.eorIndirectX:
+        _eor(_indirectX);
+      case OpCode.eorIndirectY:
+        _eor(_indirectY);
     }
   }
 

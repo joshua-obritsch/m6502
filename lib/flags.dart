@@ -47,12 +47,17 @@ mixin Flags implements Registers {
   set _c(int value) => c = value > 0xFF;
 
   /// Sets the zero (Z) processor status flag (bit 1) arithmetically.
-  set _z(int value) => z = value & 0xFF == 0;
+  set _z(int value) => z = value.toUnsigned(8) == 0x00;
 
   /// Sets the overflow (V) processor status flag (bit 6) arithmetically.
-  set _v((int, int, int) value) =>
-      v = (value.$1 ^ value.$3) & (value.$2 ^ value.$3) & 0x80 == 0x80;
+  set _v((int, int, int) value) {
+    final a = value.$1.toUnsigned(8);
+    final b = value.$2.toUnsigned(8);
+    final c = value.$3.toUnsigned(8);
+
+    v = (a ^ c) & (b ^ c) & 0x80 == 0x80;
+  }
 
   /// Sets the negative (N) processor status flag (bit 7) arithmetically.
-  set _n(int value) => n = value & 0x80 == 0x80;
+  set _n(int value) => n = value.toUnsigned(8) & 0x80 == 0x80;
 }
