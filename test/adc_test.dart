@@ -49,6 +49,7 @@ void main() {
   });
 
   test('ADC Zero Page X', () {
+    // Without wrapping
     cpu.restart();
     cpu.a = 20;
     cpu.x = 0x46;
@@ -67,9 +68,8 @@ void main() {
       p: 0xA0,
       pc: 0x8002,
     );
-  });
 
-  test('ADC Zero Page X (Wrapping)', () {
+    // With wrapping
     cpu.restart();
     cpu.a = 10;
     cpu.x = 0x96;
@@ -111,6 +111,7 @@ void main() {
   });
 
   test('ADC Absolute X', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 137;
     cpu.x = 0x74;
@@ -130,9 +131,8 @@ void main() {
       p: 0xA0,
       pc: 0x8003,
     );
-  });
 
-  test('ADC Absolute X (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 176;
     cpu.x = 0xAB;
@@ -155,6 +155,7 @@ void main() {
   });
 
   test('ADC Absolute Y', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 129;
     cpu.y = 0x07;
@@ -174,9 +175,8 @@ void main() {
       p: 0x61,
       pc: 0x8003,
     );
-  });
 
-  test('ADC Absolute Y (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 18;
     cpu.y = 0xF0;
@@ -199,6 +199,7 @@ void main() {
   });
 
   test('ADC Indirect X', () {
+    // Without wrapping
     cpu.restart();
     cpu.a = 85;
     cpu.x = 0x6B;
@@ -219,9 +220,8 @@ void main() {
       p: 0x21,
       pc: 0x8002,
     );
-  });
 
-  test('ADC Indirect X (Wrapping)', () {
+    // With wrapping
     cpu.restart();
     cpu.a = 150;
     cpu.x = 0xCA;
@@ -245,6 +245,7 @@ void main() {
   });
 
   test('ADC Indirect Y', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 30;
     cpu.y = 0xC7;
@@ -265,9 +266,8 @@ void main() {
       p: 0xE0,
       pc: 0x8002,
     );
-  });
 
-  test('ADC Indirect Y (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 111;
     cpu.y = 0x8A;
@@ -285,6 +285,253 @@ void main() {
       tcu: 6,
       a: 224,
       y: 0x8A,
+      p: 0xE0,
+      pc: 0x8002,
+    );
+  });
+
+  test('ADC Carry', () {
+    // Without postset carry
+    cpu.restart();
+    cpu.a = 28;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 104;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 132,
+      p: 0xE0,
+      pc: 0x8002,
+    );
+
+    // With postset carry
+    cpu.restart();
+    cpu.a = 207;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 253;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 204,
+      p: 0xA1,
+      pc: 0x8002,
+    );
+
+    // Without preset carry
+    cpu.restart();
+    cpu.a = 72;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 36;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 108,
+      p: 0x20,
+      pc: 0x8002,
+    );
+
+    // With preset carry
+    cpu.restart();
+    cpu.a = 28;
+    cpu.c = true;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 50;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 79,
+      p: 0x20,
+      pc: 0x8002,
+    );
+  });
+
+  test('ADC Zero', () {
+    // Non-zero
+    cpu.restart();
+    cpu.a = 235;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 240;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 219,
+      p: 0xA1,
+      pc: 0x8002,
+    );
+
+    // Zero
+    cpu.restart();
+    cpu.a = 252;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 4;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 0,
+      p: 0x23,
+      pc: 0x8002,
+    );
+  });
+
+  test('ADC Overflow', () {
+    // Without overflow (A positive, M positive)
+    cpu.restart();
+    cpu.a = 49;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 3;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 52,
+      p: 0x20,
+      pc: 0x8002,
+    );
+
+    // Without overflow (A negative, M negative)
+    cpu.restart();
+    cpu.a = 232;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 202;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 178,
+      p: 0xA1,
+      pc: 0x8002,
+    );
+
+    // Without overflow (A positive, M negative)
+    cpu.restart();
+    cpu.a = 54;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 141;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 195,
+      p: 0xA0,
+      pc: 0x8002,
+    );
+
+    // Without overflow (A negative, M positive)
+    cpu.restart();
+    cpu.a = 212;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 121;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 77,
+      p: 0x21,
+      pc: 0x8002,
+    );
+
+    // With overflow (A positive, M positive)
+    cpu.restart();
+    cpu.a = 106;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 114;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 220,
+      p: 0xE0,
+      pc: 0x8002,
+    );
+
+    // With overflow (A negative, M negative)
+    cpu.restart();
+    cpu.a = 151;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 175;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 70,
+      p: 0x61,
+      pc: 0x8002,
+    );
+  });
+
+  test('ADC Negative', () {
+    // Non-negative
+    cpu.restart();
+    cpu.a = 43;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 5;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 48,
+      p: 0x20,
+      pc: 0x8002,
+    );
+
+    // Negative
+    cpu.restart();
+    cpu.a = 112;
+
+    memory[0x8000] = OpCode.adcImmediate;
+    memory[0x8001] = 96;
+
+    cpu.fetch();
+    cpu.execute();
+    cpu.expect(
+      ir: OpCode.adcImmediate,
+      tcu: 2,
+      a: 208,
       p: 0xE0,
       pc: 0x8002,
     );

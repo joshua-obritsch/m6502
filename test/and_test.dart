@@ -49,6 +49,7 @@ void main() {
   });
 
   test('AND Zero Page X', () {
+    // Without wrapping
     cpu.restart();
     cpu.a = 0xCA;
     cpu.x = 0x6B;
@@ -67,9 +68,8 @@ void main() {
       p: 0xA0,
       pc: 0x8002,
     );
-  });
 
-  test('AND Zero Page X (Wrapping)', () {
+    // With wrapping
     cpu.restart();
     cpu.a = 0xF0;
     cpu.x = 0xF6;
@@ -111,6 +111,7 @@ void main() {
   });
 
   test('AND Absolute X', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 0x23;
     cpu.x = 0x33;
@@ -130,9 +131,8 @@ void main() {
       p: 0x20,
       pc: 0x8003,
     );
-  });
 
-  test('AND Absolute X (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 0x4A;
     cpu.x = 0xCB;
@@ -155,6 +155,7 @@ void main() {
   });
 
   test('AND Absolute Y', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 0x29;
     cpu.y = 0x27;
@@ -174,9 +175,8 @@ void main() {
       p: 0x20,
       pc: 0x8003,
     );
-  });
 
-  test('AND Absolute Y (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 0xB3;
     cpu.y = 0xF5;
@@ -199,6 +199,7 @@ void main() {
   });
 
   test('AND Indirect X', () {
+    // Without wrapping
     cpu.restart();
     cpu.a = 0x6C;
     cpu.x = 0x07;
@@ -219,9 +220,8 @@ void main() {
       p: 0x20,
       pc: 0x8002,
     );
-  });
 
-  test('AND Indirect X (Wrapping)', () {
+    // With wrapping
     cpu.restart();
     cpu.a = 0xD6;
     cpu.x = 0xF2;
@@ -245,6 +245,7 @@ void main() {
   });
 
   test('AND Indirect Y', () {
+    // Without page boundary crossing
     cpu.restart();
     cpu.a = 0x78;
     cpu.y = 0x1C;
@@ -265,9 +266,8 @@ void main() {
       p: 0x20,
       pc: 0x8002,
     );
-  });
 
-  test('AND Indirect Y (Page Boundary Crossing)', () {
+    // With page boundary crossing
     cpu.restart();
     cpu.a = 0xC9;
     cpu.y = 0x98;
