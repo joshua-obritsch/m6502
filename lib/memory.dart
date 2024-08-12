@@ -4,6 +4,9 @@ mixin Memory implements Registers {
   /// Represents the 16-bit addressable memory.
   final ByteData memory = ByteData(65536);
 
+  /// Represents the stack.
+  late ByteData stack;
+
   /// Gets the operands from memory via absolute addressing.
   (int, int) get _absolute => (memory.getUint16(pc, Endian.little), 2);
 

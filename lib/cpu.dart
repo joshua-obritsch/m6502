@@ -11,6 +11,7 @@ part 'timing.dart';
 class Cpu with Flags, Instructions, Memory, Registers, Timing {
   Cpu() {
     p = 0x20;
+    stack = ByteData.sublistView(memory, 0x0100, 0x0200);
   }
 
   /// Gets the next operation code from memory and calculates the cycle count.
@@ -113,35 +114,35 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         v = false;
       // CMP
       case OpCode.cmpImmediate:
-        _cmp(_immediate);
+        _compare(a, _immediate);
       case OpCode.cmpZeroPage:
-        _cmp(_zeroPage);
+        _compare(a, _zeroPage);
       case OpCode.cmpZeroPageX:
-        _cmp(_zeroPageX);
+        _compare(a, _zeroPageX);
       case OpCode.cmpAbsolute:
-        _cmp(_absolute);
+        _compare(a, _absolute);
       case OpCode.cmpAbsoluteX:
-        _cmp(_absoluteX);
+        _compare(a, _absoluteX);
       case OpCode.cmpAbsoluteY:
-        _cmp(_absoluteY);
+        _compare(a, _absoluteY);
       case OpCode.cmpIndirectX:
-        _cmp(_indirectX);
+        _compare(a, _indirectX);
       case OpCode.cmpIndirectY:
-        _cmp(_indirectY);
+        _compare(a, _indirectY);
       // CPX
       case OpCode.cpxImmediate:
-        _cpx(_immediate);
+        _compare(x, _immediate);
       case OpCode.cpxZeroPage:
-        _cpx(_zeroPage);
+        _compare(x, _zeroPage);
       case OpCode.cpxAbsolute:
-        _cpx(_absolute);
+        _compare(x, _absolute);
       // CPY
       case OpCode.cpyImmediate:
-        _cpy(_immediate);
+        _compare(y, _immediate);
       case OpCode.cpyZeroPage:
-        _cpy(_zeroPage);
+        _compare(y, _zeroPage);
       case OpCode.cpyAbsolute:
-        _cpy(_absolute);
+        _compare(y, _absolute);
       // DEC
       case OpCode.decZeroPage:
         _dec(_zeroPage);
@@ -174,6 +175,122 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         _eor(_indirectX);
       case OpCode.eorIndirectY:
         _eor(_indirectY);
+      // INC
+      case OpCode.incZeroPage:
+        _inc(_zeroPage);
+      case OpCode.incZeroPageX:
+        _inc(_zeroPageX);
+      case OpCode.incAbsolute:
+        _inc(_absolute);
+      case OpCode.incAbsoluteX:
+        _inc(_absoluteX);
+      // INX
+      case OpCode.inxImplied:
+        _inx();
+      // INY
+      case OpCode.inyImplied:
+        _iny();
+      // JMP
+      case OpCode.jmpAbsolute:
+        _jmp(_absolute);
+      case OpCode.jmpIndirect:
+        _jmp(_indirect);
+      // JSR
+      case OpCode.jsrAbsolute:
+        _jsr(_absolute);
+      // LDA
+      case OpCode.ldaImmediate:
+        _lda(_immediate);
+      case OpCode.ldaZeroPage:
+        _lda(_zeroPage);
+      case OpCode.ldaZeroPageX:
+        _lda(_zeroPageX);
+      case OpCode.ldaAbsolute:
+        _lda(_absolute);
+      case OpCode.ldaAbsoluteX:
+        _lda(_absoluteX);
+      case OpCode.ldaAbsoluteY:
+        _lda(_absoluteY);
+      case OpCode.ldaIndirectX:
+        _lda(_indirectX);
+      case OpCode.ldaIndirectY:
+        _lda(_indirectY);
+      // LDX
+      case OpCode.ldxImmediate:
+        _ldx(_immediate);
+      case OpCode.ldxZeroPage:
+        _ldx(_zeroPage);
+      case OpCode.ldxZeroPageY:
+        _ldx(_zeroPageY);
+      case OpCode.ldxAbsolute:
+        _ldx(_absolute);
+      case OpCode.ldxAbsoluteY:
+        _ldx(_absoluteY);
+      // LDY
+      case OpCode.ldyImmediate:
+        _ldy(_immediate);
+      case OpCode.ldyZeroPage:
+        _ldy(_zeroPage);
+      case OpCode.ldyZeroPageX:
+        _ldy(_zeroPageX);
+      case OpCode.ldyAbsolute:
+        _ldy(_absolute);
+      case OpCode.ldyAbsoluteX:
+        _ldy(_absoluteX);
+      // LSR
+      case OpCode.lsrAccumulator:
+        _lsrAccumulator();
+      case OpCode.lsrZeroPage:
+        _lsr(_zeroPage);
+      case OpCode.lsrZeroPageX:
+        _lsr(_zeroPageX);
+      case OpCode.lsrAbsolute:
+        _lsr(_absolute);
+      case OpCode.lsrAbsoluteX:
+        _lsr(_absoluteX);
+      // NOP
+      case OpCode.nopImplied:
+        break;
+      // ORA
+      case OpCode.oraImmediate:
+        _ora(_immediate);
+      case OpCode.oraZeroPage:
+        _ora(_zeroPage);
+      case OpCode.oraZeroPageX:
+        _ora(_zeroPageX);
+      case OpCode.oraAbsolute:
+        _ora(_absolute);
+      case OpCode.oraAbsoluteX:
+        _ora(_absoluteX);
+      case OpCode.oraAbsoluteY:
+        _ora(_absoluteY);
+      case OpCode.oraIndirectX:
+        _ora(_indirectX);
+      case OpCode.oraIndirectY:
+        _ora(_indirectY);
+      // PHA
+      case OpCode.phaImplied:
+        _pha();
+      // PHP
+      case OpCode.phpImplied:
+        _php();
+      // PLA
+      case OpCode.plaImplied:
+        _pla();
+      // PLP
+      case OpCode.plpImplied:
+        _plp();
+      // ROL
+      case OpCode.rolAccumulator:
+        _rolAccumulator();
+      case OpCode.rolZeroPage:
+        _rol(_zeroPage);
+      case OpCode.rolZeroPageX:
+        _rol(_zeroPageX);
+      case OpCode.rolAbsolute:
+        _rol(_absolute);
+      case OpCode.rolAbsoluteX:
+        _rol(_absoluteX);
     }
   }
 
