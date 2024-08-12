@@ -329,4 +329,38 @@ mixin Instructions implements Registers, Flags, Memory {
 
     a = result;
   }
+
+  /// Executes the ROR instruction on memory.
+  void _ror((int, int) operand) {
+    final (address, byteLength) = operand;
+
+    final value = memory[address];
+    final result = (value >>> 1) + (c ? 0x80 : 0x00);
+
+    c = value & 0x01 == 0x01;
+    _z = result;
+    _n = result;
+
+    memory[address] = result;
+
+    pc += byteLength;
+  }
+
+  /// Executes the ROR instruction on the accumulator.
+  void _rorAccumulator() {
+    final result = (a >>> 1) + (c ? 0x80 : 0x00);
+
+    c = a & 0x01 == 0x01;
+    _z = result;
+    _n = result;
+
+    a = result;
+  }
+
+  /// Executes the RTI instruction on the accumulator.
+  void _rti() {
+    p = stack[++s];
+    pcl = stack[++s];
+    pch = stack[++s];
+  }
 }

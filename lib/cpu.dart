@@ -291,6 +291,20 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         _rol(_absolute);
       case OpCode.rolAbsoluteX:
         _rol(_absoluteX);
+      // ROR
+      case OpCode.rorAccumulator:
+        _rorAccumulator();
+      case OpCode.rorZeroPage:
+        _ror(_zeroPage);
+      case OpCode.rorZeroPageX:
+        _ror(_zeroPageX);
+      case OpCode.rorAbsolute:
+        _ror(_absolute);
+      case OpCode.rorAbsoluteX:
+        _ror(_absoluteX);
+      // RTI
+      case OpCode.rtiImplied:
+        _rti();
     }
   }
 
