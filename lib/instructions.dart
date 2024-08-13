@@ -388,4 +388,31 @@ mixin Instructions implements Registers, Flags, Memory {
 
     pc += byteLength;
   }
+
+  /// Executes the STA instruction.
+  void _sta((int, int) operand) {
+    final (address, byteLength) = operand;
+
+    memory[address] = a;
+
+    pc += byteLength;
+  }
+
+  /// Executes the STX instruction.
+  void _stx((int, int) operand) {
+    final (address, byteLength) = operand;
+
+    memory[address] = x;
+
+    pc += byteLength;
+  }
+
+  /// Executes the STY instruction.
+  void _sty((int, int) operand) {
+    final (address, byteLength) = operand;
+
+    memory[address] = y;
+
+    pc += byteLength;
+  }
 }

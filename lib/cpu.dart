@@ -326,6 +326,62 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
         _sbc(_indirectX);
       case OpCode.sbcIndirectY:
         _sbc(_indirectY);
+      // SEC
+      case OpCode.secImplied:
+        c = true;
+      // SED
+      case OpCode.sedImplied:
+        d = true;
+      // SEI
+      case OpCode.seiImplied:
+        i = true;
+      // STA
+      case OpCode.staZeroPage:
+        _sta(_zeroPage);
+      case OpCode.staZeroPageX:
+        _sta(_zeroPageX);
+      case OpCode.staAbsolute:
+        _sta(_absolute);
+      case OpCode.staAbsoluteX:
+        _sta(_absoluteX);
+      case OpCode.staAbsoluteY:
+        _sta(_absoluteY);
+      case OpCode.staIndirectX:
+        _sta(_indirectX);
+      case OpCode.staIndirectY:
+        _sta(_indirectY);
+      // STX
+      case OpCode.stxZeroPage:
+        _stx(_zeroPage);
+      case OpCode.stxZeroPageY:
+        _stx(_zeroPageY);
+      case OpCode.stxAbsolute:
+        _stx(_absolute);
+      // STY
+      case OpCode.styZeroPage:
+        _sty(_zeroPage);
+      case OpCode.styZeroPageX:
+        _sty(_zeroPageX);
+      case OpCode.styAbsolute:
+        _sty(_absolute);
+      // TAX
+      case OpCode.taxImplied:
+        x = a;
+      // TAY
+      case OpCode.tayImplied:
+        y = a;
+      // TSX
+      case OpCode.tsxImplied:
+        x = s;
+      // TXA
+      case OpCode.txaImplied:
+        a = x;
+      // TXS
+      case OpCode.txsImplied:
+        s = x;
+      // TYA
+      case OpCode.tyaImplied:
+        a = y;
     }
   }
 
