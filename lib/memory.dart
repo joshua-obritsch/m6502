@@ -1,11 +1,11 @@
 part of 'cpu.dart';
 
 mixin Memory implements Registers {
-  /// Represents the 16-bit addressable memory.
-  final ByteData memory = ByteData(65536);
+  /// Represents the addressable memory space.
+  late final ByteData memory;
 
-  /// Represents the stack.
-  late ByteData stack;
+  /// Represents the stack in memory.
+  late final ByteData stack;
 
   /// Gets the operands from memory via absolute addressing.
   (int, int) get _absolute => (memory.getUint16(pc, Endian.little), 2);

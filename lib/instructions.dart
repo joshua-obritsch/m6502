@@ -357,10 +357,35 @@ mixin Instructions implements Registers, Flags, Memory {
     a = result;
   }
 
-  /// Executes the RTI instruction on the accumulator.
+  /// Executes the RTI instruction.
   void _rti() {
     p = stack[++s];
     pcl = stack[++s];
     pch = stack[++s];
+  }
+
+  /// Executes the RTS instruction.
+  void _rts() {
+    pcl = stack[++s];
+    pch = stack[++s];
+    pc++;
+  }
+
+  /// Executes the SBC instruction.
+  void _sbc((int, int) operand) {
+    final (address, byteLength) = operand;
+
+    final augend = a;
+    final addend = (255 - memory[address]);
+    final sum = augend + addend + (c ? 1 : 0);
+
+    _c = sum;
+    _z = sum;
+    _v = (augend, addend, sum);
+    _n = sum;
+
+    a = sum;
+
+    pc += byteLength;
   }
 }

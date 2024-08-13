@@ -9,9 +9,10 @@ part 'memory.dart';
 part 'timing.dart';
 
 class Cpu with Flags, Instructions, Memory, Registers, Timing {
-  Cpu() {
+  Cpu({ByteData? memory}) {
+    this.memory = memory ?? ByteData(65536);
+    stack = ByteData.sublistView(this.memory, 0x0100, 0x0200);
     p = 0x20;
-    stack = ByteData.sublistView(memory, 0x0100, 0x0200);
   }
 
   /// Gets the next operation code from memory and calculates the cycle count.
@@ -305,6 +306,26 @@ class Cpu with Flags, Instructions, Memory, Registers, Timing {
       // RTI
       case OpCode.rtiImplied:
         _rti();
+      // RTS
+      case OpCode.rtsImplied:
+        _rts();
+      // SBC
+      case OpCode.sbcImmediate:
+        _sbc(_immediate);
+      case OpCode.sbcZeroPage:
+        _sbc(_zeroPage);
+      case OpCode.sbcZeroPageX:
+        _sbc(_zeroPageX);
+      case OpCode.sbcAbsolute:
+        _sbc(_absolute);
+      case OpCode.sbcAbsoluteX:
+        _sbc(_absoluteX);
+      case OpCode.sbcAbsoluteY:
+        _sbc(_absoluteY);
+      case OpCode.sbcIndirectX:
+        _sbc(_indirectX);
+      case OpCode.sbcIndirectY:
+        _sbc(_indirectY);
     }
   }
 
