@@ -22,6 +22,8 @@ mixin Registers {
   /// Represents the 8-bit stack pointer register (S).
   final ByteData _s = ByteData(1);
 
+  // Getters
+
   /// Gets the instruction register (IR).
   int get ir => _ir.getUint8(0);
 
@@ -48,6 +50,8 @@ mixin Registers {
 
   /// Gets the stack pointer register (S).
   int get s => _s.getUint8(0);
+
+  // Setters
 
   /// Sets the instruction register (IR).
   set ir(int value) => _ir.setUint8(0, value);
