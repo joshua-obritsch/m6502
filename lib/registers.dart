@@ -1,82 +1,76 @@
-import 'dart:typed_data';
-
 mixin Registers {
   /// Represents the 8-bit instruction register (IR).
-  final ByteData _ir = ByteData(1);
+  int _ir = 0;
 
   /// Represents the 8-bit accumulator register (A).
-  final ByteData _a = ByteData(1);
+  int _a = 0;
 
   /// Represents the 8-bit index register (X).
-  final ByteData _x = ByteData(1);
+  int _x = 0;
 
   /// Represents the 8-bit index register (Y).
-  final ByteData _y = ByteData(1);
+  int _y = 0;
 
   /// Represents the 8-bit processor status register (P).
-  final ByteData _p = ByteData(1)..setUint8(0, 0x20);
+  int _p = 0x20;
 
   /// Represents the 16-bit program counter register (PC).
-  final ByteData _pc = ByteData(2);
+  int _pc = 0;
 
   /// Represents the 8-bit stack pointer register (S).
-  final ByteData _s = ByteData(1);
-
-  // Getters
+  int _s = 0;
 
   /// Gets the instruction register (IR).
-  int get ir => _ir.getUint8(0);
+  int get ir => _ir;
 
   /// Gets the accumulator register (A).
-  int get a => _a.getUint8(0);
+  int get a => _a;
 
   /// Gets the index register (X).
-  int get x => _x.getUint8(0);
+  int get x => _x;
 
   /// Gets the index register (Y).
-  int get y => _y.getUint8(0);
+  int get y => _y;
 
   /// Gets the processor status register (P).
-  int get p => _p.getUint8(0);
+  int get p => _p;
 
   /// Gets the program counter register (PC).
-  int get pc => _pc.getUint16(0);
+  int get pc => _pc;
 
   /// Gets the high byte of the program counter register (PCH).
-  int get pch => _pc.getUint8(0);
+  int get pch => _pc >> 8;
 
   /// Gets the low byte of the program counter register (PCL).
-  int get pcl => _pc.getUint8(1);
+  int get pcl => _pc & 0xFF;
 
   /// Gets the stack pointer register (S).
-  int get s => _s.getUint8(0);
-
-  // Setters
+  int get s => _s;
 
   /// Sets the instruction register (IR).
-  set ir(int value) => _ir.setUint8(0, value);
+  set ir(int value) => _ir = value & 0xFF;
 
   /// Sets the accumulator register (A).
-  set a(int value) => _a.setUint8(0, value);
+  set a(int value) => _a = value & 0xFF;
 
   /// Sets the index register (X).
-  set x(int value) => _x.setUint8(0, value);
+  set x(int value) => _x = value & 0xFF;
 
   /// Sets the index register (Y).
-  set y(int value) => _y.setUint8(0, value);
+  set y(int value) => _y = value & 0xFF;
 
   /// Sets the processor status register (P).
-  set p(int value) => _p.setUint8(0, value);
+  set p(int value) => _p = value & 0xFF;
 
   /// Sets the program counter register (PC).
-  set pc(int value) => _pc.setUint16(0, value);
+  set pc(int value) => _pc = value & 0xFFFF;
 
   /// Sets the high byte of the program counter register (PCH).
-  set pch(int value) => _pc.setUint8(0, value);
+  set pch(int value) => _pc = (value & 0xFF) << 8 | _pc & 0xFF;
 
   /// Sets the low byte of the program counter register (PCL).
-  set pcl(int value) => _pc.setUint8(1, value);
+  set pcl(int value) => _pc = value & 0xFF | _pc & 0xFF00;
 
   /// Sets the stack pointer register (S).
-  set s(int value) => _s.setUint8(0, value);
+  set s(int value) => _s = value & 0xFF;
 }
